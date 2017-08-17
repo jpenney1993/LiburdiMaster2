@@ -556,6 +556,8 @@ void MainWindow::on_avcDownButton_clicked()
 
 //$$$$$$$$$$$$$$$$$$$$$$$ WELDING CONTROLS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+// Sam's going to put a button here
+
 //********* PURGE BUTTON FUNCTIONS *********************************************************
 /* This function controls the starting and stopping of the purge gas function */
 void MainWindow::on_purgeButton_clicked()
