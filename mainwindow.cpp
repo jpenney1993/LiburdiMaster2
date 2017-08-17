@@ -11,9 +11,7 @@
 #include <QtSerialPort/QSerialPort>
 #include <QUrl>
 #include <QMessageBox>
-#include <QTime>
-
-// checking push for git again again
+#include <QTime> 
 
 int travScaleFactor;
 int oscScaleFactor;
