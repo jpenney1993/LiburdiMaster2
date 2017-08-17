@@ -13,7 +13,7 @@
 #include <QMessageBox>
 #include <QTime>
 
-// checking push for git
+// checking push for git again
 
 int travScaleFactor;
 int oscScaleFactor;
