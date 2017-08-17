@@ -13,6 +13,8 @@
 #include <QMessageBox>
 #include <QTime>
 
+// still testing this stupid thing...
+
 int travScaleFactor;
 int oscScaleFactor;
 int lastEZServo;
