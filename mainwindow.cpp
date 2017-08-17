@@ -557,6 +557,67 @@ void MainWindow::on_avcDownButton_clicked()
 //$$$$$$$$$$$$$$$$$$$$$$$ WELDING CONTROLS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 // Sam's going to put a button here
+// Yes I am!
+
+//********* WELD BUTTON FUNCTIONS **********************************************************
+
+function TravelADistance(double dist)
+{
+    ui->replyBox->clear();
+    QString clickString;
+    QByteArray command;
+    int clicks;
+    if(ezservo->isOpen())
+    {
+        if(dist > 0)
+        {
+            command = "/1PR\r";
+            clicks = travDist2Click(dist);
+            clickString = QString::number(clicks);
+        }
+        else
+        {
+            command = "/1DR\r";
+            clicks = travDist2Click(abs(dist));
+            clickString = QString::number(clicks);
+        }
+        command.insert(3,clickString);
+        ezservo->write(command);
+        lastEZServo = 1;
+        ui->replyBox->addItem(tr("Distance: %1").arg(QString::number(dist)));
+        ui->replyBox->addItem(tr("Clicks: %1").arg(QString::number(clicks)));
+        ui->replyBox->addItem(tr("Command:"));
+        ui->replyBox->addItem(command);
+        ui->travCheckButton->click();
+    }
+    else
+    {
+        ui->replyBox->addItem(tr("EZServo board not connected"));
+        statusBar()->showMessage(tr("ERROR: No EZServo"));
+    }
+}
+
+void MainWindow::on_weldButton_clicked()
+{
+    // Start by disabling the weld button so only one operation can run at a time
+    ui->weldButton->isEnabled()=False;
+    // Read coil 281 to determine if Liburdi is currently purging
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil 281 controls the purge function
+    const auto table = static_cast<QModbusDataUnit::RegisterType>(4);
+    QModbusDataUnit request = QModbusDataUnit(table,281,1);
+    ui->replyBox->addItem(tr("Output Register 281 reads as %1").arg(request));
+
+    double dist = ui->weldDistanceEdit->text().toDouble();
+    TravelADistance(dist);
+
+    // Finish by re-enabling the weld button
+    ui->weldButton->isEnabled()=True;
+}
 
 //********* PURGE BUTTON FUNCTIONS *********************************************************
 /* This function controls the starting and stopping of the purge gas function */
