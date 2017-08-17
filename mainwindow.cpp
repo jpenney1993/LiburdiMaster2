@@ -14,6 +14,7 @@
 #include <QTime>
 
 // still testing this stupid thing...
+// hello there
 
 int travScaleFactor;
 int oscScaleFactor;
