@@ -561,7 +561,7 @@ void MainWindow::on_avcDownButton_clicked()
 
 //********* WELD BUTTON FUNCTIONS **********************************************************
 
-function TravelADistance(double dist)
+/*void TravelADistance(double dist)
 {
     ui->replyBox->clear();
     QString clickString;
@@ -595,28 +595,54 @@ function TravelADistance(double dist)
         ui->replyBox->addItem(tr("EZServo board not connected"));
         statusBar()->showMessage(tr("ERROR: No EZServo"));
     }
-}
+}*/
 
 void MainWindow::on_weldButton_clicked()
 {
-    // Start by disabling the weld button so only one operation can run at a time
-    ui->weldButton->isEnabled()=False;
-    // Read coil 281 to determine if Liburdi is currently purging
-    if(!modbusDevice)
-        return;
-    ui->replyBox->clear();
-    statusBar()->clearMessage();
+        // Start by disabling the weld button so only one operation can run at a time
+        ui->weldButton->setEnabled(false);
+        // Read the pre-purge, post-purge, travel delay, and downsloap times
 
-    // Coil 281 controls the purge function
-    const auto table = static_cast<QModbusDataUnit::RegisterType>(4);
-    QModbusDataUnit request = QModbusDataUnit(table,281,1);
-    ui->replyBox->addItem(tr("Output Register 281 reads as %1").arg(request));
+        // Read coil 280 to determine the post-purge
+        if(!modbusDevice)
+            return;
+        ui->replyBox->clear();
+        statusBar()->clearMessage();
 
-    double dist = ui->weldDistanceEdit->text().toDouble();
-    TravelADistance(dist);
+        // Coil 279 controls the pre-purge delay time
+        const auto prep_table = static_cast<QModbusDataUnit::RegisterType>(4);
+        QModbusDataUnit prep_request = QModbusDataUnit(prep_table,279,1);
+        QVector<quint16> prep_array=prep_request.values();
+        double pre_purge_delay=prep_array[0];
+        ui->replyBox->addItem(tr("Pre-purge delay established as %1s").arg(pre_purge_delay));
 
-    // Finish by re-enabling the weld button
-    ui->weldButton->isEnabled()=True;
+        // Coil 280 controls the post-purge delay time
+        const auto postp_table = static_cast<QModbusDataUnit::RegisterType>(4);
+        QModbusDataUnit postp_request = QModbusDataUnit(postp_table,280,1);
+        QVector<quint16> postp_array=postp_request.values();
+        double post_purge_delay=postp_array[0];
+        ui->replyBox->addItem(tr("Post-purge delay established as %1s").arg(post_purge_delay));
+
+        // Coil 281 controls the travel delay time
+        const auto trav_table = static_cast<QModbusDataUnit::RegisterType>(4);
+        QModbusDataUnit trav_request = QModbusDataUnit(trav_table,281,1);
+        QVector<quint16> trav_delay_array=trav_request.values();
+        double trav_delay=trav_delay_array[0];
+        ui->replyBox->addItem(tr("Travel delay established as %1s").arg(trav_delay));
+
+        // Coil 282 controls the downsloap time
+        const auto downsl_table = static_cast<QModbusDataUnit::RegisterType>(4);
+        QModbusDataUnit downsl_request = QModbusDataUnit(downsl_table,282,1);
+        QVector<quint16> downsl_array=downsl_request.values();
+        double downsloap_delay=downsl_array[0];
+        ui->replyBox->addItem(tr("Downsloap time established as %1s").arg(downsloap_delay));
+
+        double dist = ui->weldDistanceEdit->text().toDouble();
+        ui->replyBox->addItem(tr("Weld distance= %1in").arg(dist));
+//        TravelADistance(dist);
+
+        // Finish by re-enabling the weld button
+        ui->weldButton->setEnabled(true);
 }
 
 //********* PURGE BUTTON FUNCTIONS *********************************************************
@@ -803,3 +829,4 @@ void MainWindow::on_setCalibration2Button_clicked()
     ui->replyBox->addItem(tr("New oscillation scale factor:"));
     ui->replyBox->addItem(QString::number(oscScaleFactor));
 }
+

@@ -74,6 +74,8 @@ private slots:
 
     void on_oscCheckButton_clicked();
 
+    void on_weldButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest;
