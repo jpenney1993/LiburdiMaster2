@@ -561,7 +561,7 @@ void MainWindow::on_avcDownButton_clicked()
 
 //********* WELD BUTTON FUNCTIONS **********************************************************
 
-/*void TravelADistance(double dist)
+void MainWindow::TravelADistance(double dist)
 {
     ui->replyBox->clear();
     QString clickString;
@@ -595,7 +595,7 @@ void MainWindow::on_avcDownButton_clicked()
         ui->replyBox->addItem(tr("EZServo board not connected"));
         statusBar()->showMessage(tr("ERROR: No EZServo"));
     }
-}*/
+}
 
 void MainWindow::on_weldButton_clicked()
 {
@@ -646,13 +646,22 @@ void MainWindow::on_weldButton_clicked()
         QModbusDataUnit weld_on_request = QModbusDataUnit(weld_on_table,262,1);
         weld_on_request.setValue(0,1);
 
-//        TravelADistance(dist);
+        // Wait for the travely delay and pre-purge times
+        double start_wait_time=pre_purge_delay+trav_delay;
+        delay(start_wait_time);
+
+        // Travel the desired distance while welding
+        TravelADistance(dist);
 
         // Deactivate welding
         // Coil 263 controls the welding sequence stop
         const auto weld_off_table = static_cast<QModbusDataUnit::RegisterType>(2);
         QModbusDataUnit weld_off_request = QModbusDataUnit(weld_off_table,263,1);
         weld_off_request.setValue(0,1);
+
+        // Wait for the post-purge and downsloap times
+        double end_wait_time=downsloap_delay+post_purge_delay;
+        delay(end_wait_time);
 
         // Finish by re-enabling the weld button
         ui->weldButton->setEnabled(true);

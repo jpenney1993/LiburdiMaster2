@@ -76,6 +76,8 @@ private slots:
 
     void on_weldButton_clicked();
 
+    void TravelADistance(double dist);
+
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest;
