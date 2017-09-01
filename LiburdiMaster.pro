@@ -55,7 +55,9 @@ SOURCES += \
         Src/Yuyv2Rgb.cpp \
     Settings.cpp \
     liburdiconnectiondialog.cpp \
-    ezservoconnectiondialog.cpp
+    ezservoconnectiondialog.cpp \
+    firgelli.cpp \
+    linearactuator.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -88,7 +90,9 @@ HEADERS += \
         Include/Yuyv2Rgb.h \
     Settings.h \
     liburdiconnectiondialog.h \
-    ezservoconnectiondialog.h
+    ezservoconnectiondialog.h \
+    firgelli.h \
+    linearactuator.h
 
 FORMS += \
         mainwindow.ui \

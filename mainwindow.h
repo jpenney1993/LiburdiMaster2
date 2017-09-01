@@ -47,6 +47,16 @@ private slots:
     void openEzservoPort();
     void closeEzservoPort();
 
+    // Firgelli slots for linear actuator
+    void actuatorConnected();
+    void actuatorFetchDT(int input);
+    void actuatorFetchPositionRaw(int input);
+    void actuatorFetchPositionMetric(float input);
+    void actuatorFetchVelocityRaw(int input);
+    void actuatorFetchVelocityMetric(float input);
+    void actuatorFetchVelocityReal(float input);
+    void actuatorFetchOscillate(bool state);
+
     // Motion button controls
     void on_travFwdButton_clicked();
     void on_travRevButton_clicked();
@@ -64,19 +74,25 @@ private slots:
 
     // Welding button controls
     void on_purgeButton_clicked();
-
     void on_customMessageButton_clicked();
-
     void readData();
-
     void on_setCalibration1Button_clicked();
     void on_setCalibration2Button_clicked();
-
     void on_oscCheckButton_clicked();
-
     void on_weldButton_clicked();
-
     void TravelADistance(double dist);
+
+    // Firgelli button controls
+    void on_connectLinActButton_clicked();
+    void on_wireJogUpButton_clicked();
+    void on_wireJogDownButton_clicked();
+    void on_wireStepVel_editingFinished();
+    void on_wireRunUpButton_pressed();
+    void on_wireRunDownButton_pressed();
+
+    void on_wireRunUpButton_released();
+
+    void on_wireRunDownButton_released();
 
 private:
     Ui::MainWindow *ui;
@@ -90,6 +106,19 @@ private:
     int travDist2Click(double dist);
     int oscDist2Click(double dist);
     void ezservoInit();
+    void initializeActuatorThread();
+
+signals:
+    void actuatorConnect();
+    void actuatorPushPosition(int input);// not used rn 8/31/2017 -matt
+    void actuatorPushVelocity(float input);
+    void actuatorPushOscillate(int min, int max);// not used, nor useful 8/31/2017 -matt
+    void actuatorMoveUp(float mmToMove);
+    void actuatorMoveDown(float mmToMove);
+    void actuatorRunUp();
+    void actuatorRunDown();
+    void actuatorStopRunUp();
+    void actuatorStopRunDown();
 };
 
 #endif // MAINWINDOW_H

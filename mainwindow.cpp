@@ -13,12 +13,17 @@
 #include <QMessageBox>
 #include <QTime>
 
+#include "linearactuator.h"
+
 // still testing this stupid thing...
 // hello there
 
 int travScaleFactor;
 int oscScaleFactor;
 int lastEZServo;
+
+bool actuatorConnection = false; // Firgelli action monitor
+int maxActuatorStep = 5; // mm
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -44,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->avcSSLabel->setDisabled(true);
 
     connect(ezservo,&QSerialPort::readyRead,this,&MainWindow::readData);
+    initializeActuatorThread();
 }
 
 //******* DECONSTRUCTOR FUNCTION **********************************************
@@ -554,10 +560,189 @@ void MainWindow::on_avcDownButton_clicked()
     }
 }
 
-//$$$$$$$$$$$$$$$$$$$$$$$ WELDING CONTROLS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+//********** WIRE FEED UP/DOWN FUNCTION ***************************************************
+void MainWindow::initializeActuatorThread() // create thread for actuator
+{
+    QThread* actuatorThread = new QThread;
+    linearActuator* actuatorWorker = new linearActuator;
 
-// Sam's going to put a button here
-// Yes I am!
+    actuatorWorker->moveToThread(actuatorThread);
+
+    //Connect to actuator
+    connect(actuatorThread,SIGNAL(started()),actuatorWorker,SLOT(startActuatorThread()));
+
+    //Cleanup connections
+    connect(actuatorWorker,SIGNAL(finished()),actuatorThread,SLOT(quit()));
+    connect(actuatorWorker,SIGNAL(finished()),actuatorWorker,SLOT(deleteLater()));
+    connect(actuatorThread,SIGNAL(finished()),actuatorThread,SLOT(deleteLater()));
+    actuatorThread->start();
+
+    // --- Making Connections :) --- //
+    // CONNCET GUI FUNCTIONS TO ACTUATOR FUNCTIONS
+    // Functions labelled as follows:
+    // Main GUI: push or fetch parameter (i.e. actuatorPushPosition to send position)
+    // Actuator: send or receive parameter (i.e. actuatorReceivePosition to receive position)
+    // Please use this naming convention for consistency. -matt
+
+    // Connect to actuator via usb + return
+    connect(this,SIGNAL(actuatorConnect()),actuatorWorker,SLOT(actuatorConnect()));
+    connect(actuatorWorker,SIGNAL(actuatorConnected()),this,SLOT(actuatorConnected()));
+
+    // Position control + feedback
+    connect(this,SIGNAL(actuatorPushPosition(int)),actuatorWorker,SLOT(actuatorReceivePosition(int)));
+    connect(actuatorWorker,SIGNAL(actuatorSendPositionRaw(int)),this,SLOT(actuatorFetchPositionRaw(int)));
+    connect(actuatorWorker,SIGNAL(actuatorSendPositionMetric(float)),this,SLOT(actuatorFetchPositionMetric(float)));
+    connect(this,SIGNAL(actuatorMoveUp(float)),actuatorWorker,SLOT(actuatorMoveUp(float)));
+    connect(this,SIGNAL(actuatorMoveDown(float)),actuatorWorker,SLOT(actuatorMoveDown(float)));
+
+    // Velocity control + feedback
+    connect(this,SIGNAL(actuatorPushVelocity(float)),actuatorWorker,SLOT(actuatorReceiveVelocity(float)));
+    connect(actuatorWorker,SIGNAL(actuatorSendVelocityRaw(int)),this,SLOT(actuatorFetchVelocityRaw(int)));
+    connect(actuatorWorker,SIGNAL(actuatorSendVelocityMetric(float)),this,SLOT(actuatorFetchVelocityMetric(float)));
+    connect(actuatorWorker,SIGNAL(actuatorSendVelocityReal(float)),this,SLOT(actuatorFetchVelocityReal(float)));
+
+    // Oscillator toggle
+    connect(this,SIGNAL(actuatorPushOscillate(int, int)),actuatorWorker,SLOT(actuatorReceiveOscillate(int, int)));
+    connect(actuatorWorker,SIGNAL(actuatorSendOscillate(bool)),this,SLOT(actuatorFetchOscillate(bool)));
+
+    // Get loop time
+    connect(actuatorWorker,SIGNAL(actuatorSendDT(int)),this,SLOT(actuatorFetchDT(int)));
+
+    // Run up/down control
+    connect(this,SIGNAL(actuatorRunUp()),actuatorWorker,SLOT(actuatorRunUp()));
+    connect(this,SIGNAL(actuatorRunDown()),actuatorWorker,SLOT(actuatorRunDown()));
+    connect(this,SIGNAL(actuatorStopRunUp()),actuatorWorker,SLOT(actuatorStopRunUp()));
+    connect(this,SIGNAL(actuatorStopRunDown()),actuatorWorker,SLOT(actuatorStopRunDown()));
+}
+
+// callback functions for the slots:
+void MainWindow::actuatorConnected()
+{
+    //DISPLAY CONNECTION STATUS:
+    ui->linActActiveCheckBox->setChecked(true);
+    actuatorConnection = true;
+}
+
+void MainWindow::actuatorFetchDT(int input)
+{
+    float Hz = 1000.0/input;
+    //DISPLAY REFRESH RATE:
+    ui->wireThreadRefreshRate->setText(QString::number(Hz, 'f', 1) + "Hz");
+}
+
+void MainWindow::actuatorFetchPositionRaw(int input)
+{
+    //DISPLAY RAW POSITION:
+    //ui->posStatus->setText(QString::number(input));
+}
+
+void MainWindow::actuatorFetchPositionMetric(float input)
+{
+    //DISPLAY METRIC POSITION:
+    ui->wireHeightReadout->setText(QString::number(input, 'f', 2) + " mm");
+}
+
+void MainWindow::actuatorFetchVelocityRaw(int input)
+{
+    //DISPLAY RAW VELOCITY:
+   // ui->label_RawVel->setText(QString::number(input));
+}
+
+void MainWindow::actuatorFetchVelocityMetric(float input)
+{
+    //DISPLAY METRIC VELOCITY:
+    ui->wireStepVel->setText(QString::number(input, 'f', 1));
+}
+
+void MainWindow::actuatorFetchVelocityReal(float input)
+{
+    //DISPLAY DISCRETE VELOCITY:
+    ui->wireHeightVelReadout->setText(QString::number(-input, 'f', 2) + " mm/s");
+}
+
+void MainWindow::actuatorFetchOscillate(bool state)
+{
+    if (state == true) // is oscillating
+    {
+        //ui->oscillateButton->setText(tr("Stop!"));
+    }
+    else if (state == false) // is not oscillating
+    {
+        //ui->oscillateButton->setText(tr("Oscillate!"));
+    }
+}
+
+// UI Functions
+void MainWindow::on_connectLinActButton_clicked()
+{
+    if (actuatorConnection == false)
+    {
+        actuatorConnect();
+    }
+}
+
+void MainWindow::on_wireJogUpButton_clicked()
+{
+    float amount = ui->wireStepMM->text().toFloat();
+
+    if (amount < 0)
+    {
+        amount = 0;
+        ui->wireStepMM->setText("0");
+    }
+    if (amount > maxActuatorStep)
+    {
+        amount = maxActuatorStep;
+        ui->wireStepMM->setText(QString::number(maxActuatorStep));
+    }
+
+    actuatorMoveUp(amount);
+}
+
+void MainWindow::on_wireJogDownButton_clicked()
+{
+    float amount = ui->wireStepMM->text().toFloat();
+
+    if (amount < 0)
+    {
+        amount = 0;
+        ui->wireStepMM->setText("0");
+    }
+    if (amount > maxActuatorStep)
+    {
+        amount = maxActuatorStep;
+        ui->wireStepMM->setText(QString::number(maxActuatorStep));
+    }
+
+    actuatorMoveDown(amount);
+}
+
+void MainWindow::on_wireStepVel_editingFinished()
+{
+    actuatorPushVelocity(ui->wireStepVel->text().toFloat());
+}
+
+void MainWindow::on_wireRunUpButton_pressed()
+{
+    actuatorRunUp();
+}
+
+void MainWindow::on_wireRunDownButton_pressed()
+{
+    actuatorRunDown();
+}
+
+void MainWindow::on_wireRunUpButton_released()
+{
+    actuatorStopRunUp();
+}
+
+void MainWindow::on_wireRunDownButton_released()
+{
+    actuatorStopRunDown();
+}
+
+//$$$$$$$$$$$$$$$$$$$$$$$ WELDING CONTROLS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 //********* WELD BUTTON FUNCTIONS **********************************************************
 
@@ -851,4 +1036,3 @@ void MainWindow::on_setCalibration2Button_clicked()
     ui->replyBox->addItem(tr("New oscillation scale factor:"));
     ui->replyBox->addItem(QString::number(oscScaleFactor));
 }
-
