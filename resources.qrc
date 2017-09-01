@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>powerT.jpeg</file>
+        <file>EPRI Logo.jpg</file>
+    </qresource>
+</RCC>
