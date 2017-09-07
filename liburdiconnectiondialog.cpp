@@ -9,7 +9,7 @@ liburdiConnectionDialog::liburdiConnectionDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->ipAddressEdit->setText(QLatin1Literal("0.0.0.0:502"));
+    ui->ipAddressEdit->setText(QLatin1Literal("192.168.0.3:502"));
     connect(ui->applyButton,&QPushButton::clicked,
             this,&liburdiConnectionDialog::apply);
 }

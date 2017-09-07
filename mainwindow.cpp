@@ -22,6 +22,9 @@ int travScaleFactor;
 int oscScaleFactor;
 int lastEZServo;
 
+double travCurrPos;
+double oscCurrPos;
+
 bool actuatorConnection = false; // Firgelli action monitor
 int maxActuatorStep = 5; // mm
 
@@ -174,7 +177,7 @@ void MainWindow::openEzservoPort()
         ui->ezservoActiveCheckBox->setChecked(true);
         ui->connectEzservoButton->setText("Disconnect");
         ui->ezservoActiveCheckBox->setChecked(true);
-        delay(2);
+        //delay(2);
         ezservoInit();
         ui->travCheckButton->setDisabled(false);
         ui->travCurrentPosEdit->setDisabled(false);
@@ -274,11 +277,11 @@ void MainWindow::on_travGoButton_clicked()
         command.insert(3,clickString);
         ezservo->write(command);
         lastEZServo = 1;
-        ui->replyBox->addItem(tr("Distance: %1").arg(QString::number(dist)));
-        ui->replyBox->addItem(tr("Clicks: %1").arg(QString::number(clicks)));
-        ui->replyBox->addItem(tr("Command:"));
-        ui->replyBox->addItem(command);
-        ui->travCheckButton->click();
+        //ui->replyBox->addItem(tr("Distance: %1").arg(QString::number(dist)));
+        //ui->replyBox->addItem(tr("Clicks: %1").arg(QString::number(clicks)));
+        //ui->replyBox->addItem(tr("Command:"));
+        //ui->replyBox->addItem(command);
+        //ui->travCheckButton->click();
     } else{
         ui->replyBox->addItem(tr("EZServo board not connected"));
         statusBar()->showMessage(tr("ERROR: No EZServo"));
@@ -303,9 +306,15 @@ void MainWindow::on_travStopButton_clicked()
  * displays the result in inches */
 void MainWindow::on_travCheckButton_clicked()
 {
-    ui->replyBox->clear();
+   // ui->replyBox->addItem("Checking...");
+    checkTravPos();
+}
+
+void MainWindow::checkTravPos()
+{
     if(ezservo->isOpen()){
         QByteArray command = "/1?8\r";
+        //ui->replyBox->addItem("Message Sent");
         ezservo->write(command);
         lastEZServo = 1;
     } else{
@@ -313,6 +322,7 @@ void MainWindow::on_travCheckButton_clicked()
         statusBar()->showMessage(tr("ERROR: No EZServo"));
     }
 }
+
 /* This function sets the current position of the travel motor to zero */
 void MainWindow::on_travZeroButton_clicked()
 {
@@ -321,7 +331,7 @@ void MainWindow::on_travZeroButton_clicked()
         QByteArray command = "/1z0R\r";
         ezservo->write(command);
         lastEZServo = 1;
-        delay(1);
+        delay(500);
         ui->travCheckButton->click();
         ui->replyBox->addItem(tr("Travel motor zeroed"));
     }
@@ -440,7 +450,7 @@ void MainWindow::on_oscZeroButton_clicked()
     if(ezservo->isOpen()){
         QByteArray command = "/2z0R\r";
         ezservo->write(command);
-        delay(1);
+        delay(500);
         ui->oscCheckButton->click();
         ui->replyBox->addItem(tr("Oscillation motor zeroed"));
     }
@@ -480,7 +490,7 @@ void MainWindow::on_avcUpButton_clicked()
     } else{
         statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
     }
-    delay(1);
+    //delay(1);
     request.setValue(0,0);
     if(auto *reply = modbusDevice->sendWriteRequest(request,0)){
         if(!reply->isFinished()){
@@ -536,7 +546,7 @@ void MainWindow::on_avcDownButton_clicked()
     } else{
         statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
     }
-    delay(1);
+    //delay(1);
     request.setValue(0,0);
     if(auto *reply = modbusDevice->sendWriteRequest(request,0)){
         if(!reply->isFinished()){
@@ -788,26 +798,66 @@ void MainWindow::on_weldButton_clicked()
         ui->weldButton->setEnabled(false);
         // Read the pre-purge, post-purge, travel delay, and downsloap times
 
-        // Read register 280 to determine the post-purge
         if(!modbusDevice)
             return;
         ui->replyBox->clear();
         statusBar()->clearMessage();
 
         // Register 279 controls the pre-purge delay time
-        const auto prep_table = static_cast<QModbusDataUnit::RegisterType>(4);
-        QModbusDataUnit prep_request = QModbusDataUnit(prep_table,279,1);
-        QVector<quint16> prep_array=prep_request.values();
-        double pre_purge_delay=prep_array[0];
-        ui->replyBox->addItem(tr("Pre-purge delay established as %1s").arg(pre_purge_delay));
+        const auto prepTable = static_cast<QModbusDataUnit::RegisterType>(4);
+        QModbusDataUnit prepRequest = QModbusDataUnit(prepTable,279,2);
+        if(auto *reply = modbusDevice->sendReadRequest(prepRequest,0)){
+            //ui->replyBox->addItem("Reply recieved");
+            if(!reply->isFinished()){
+                //ui->replyBox->addItem("It's not finished");
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   } else{
+                       //ui->replyBox->addItem("RESULTS!");
+                       auto prepReply = reply->result();
+                       int length = prepReply.valueCount();
+                       //ui->replyBox->addItem(tr("length of array: %1").arg(length));
+                       ui->replyBox->addItem(tr("Pre-purge delay: %1s").arg(prepReply.value(length-1)));
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
 
         // Register 280 controls the post-purge delay time
-        const auto postp_table = static_cast<QModbusDataUnit::RegisterType>(4);
-        QModbusDataUnit postp_request = QModbusDataUnit(postp_table,280,1);
-        QVector<quint16> postp_array=postp_request.values();
-        double post_purge_delay=postp_array[0];
-        ui->replyBox->addItem(tr("Post-purge delay established as %1s").arg(post_purge_delay));
-
+        const auto postpTable = static_cast<QModbusDataUnit::RegisterType>(4);
+        QModbusDataUnit postpRequest = QModbusDataUnit(postpTable,280,2);
+        if(auto *reply = modbusDevice->sendReadRequest(postpRequest,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                    if(reply->error() == QModbusDevice::ProtocolError){
+                        statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2").
+                                                 arg(reply->errorString()).
+                                                 arg(reply->error(),-1,16),5000);
+                    } else if(reply->error() != QModbusDevice::NoError){
+                        statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2)").
+                                                 arg(reply->errorString()).
+                                                 arg(reply->error(),-1,16),5000);
+                    } else{
+                        auto postpReply = reply->result();
+                        int length = postpReply.valueCount();
+                        ui->replyBox->addItem(tr("Post-purge delay: %1s").arg(postpReply.value(length-1)));
+                    }
+                });
+            }
+        }
+    /*
         // Register 281 controls the travel delay time
         const auto trav_table = static_cast<QModbusDataUnit::RegisterType>(4);
         QModbusDataUnit trav_request = QModbusDataUnit(trav_table,281,1);
@@ -820,33 +870,80 @@ void MainWindow::on_weldButton_clicked()
         QModbusDataUnit downsl_request = QModbusDataUnit(downsl_table,282,1);
         QVector<quint16> downsl_array=downsl_request.values();
         double downsloap_delay=downsl_array[0];
-        ui->replyBox->addItem(tr("Downsloap time established as %1s").arg(downsloap_delay));
-
-        double dist = ui->weldDistanceEdit->text().toDouble();
-        ui->replyBox->addItem(tr("Weld distance= %1in").arg(dist));
-
+        ui->replyBox->addItem(tr("Downslope time established as %1s").arg(downsloap_delay));
+    */
         // Activate welding
         // Coil 262 controls the welding sequence start
-        const auto weld_on_table = static_cast<QModbusDataUnit::RegisterType>(2);
-        QModbusDataUnit weld_on_request = QModbusDataUnit(weld_on_table,262,1);
-        weld_on_request.setValue(0,1);
+        const auto weldOnTable = static_cast<QModbusDataUnit::RegisterType>(2);
+        QModbusDataUnit weldOnRequest = QModbusDataUnit(weldOnTable,262,1);
+        weldOnRequest.setValue(0,1);
+        if(auto *reply = modbusDevice->sendWriteRequest(weldOnRequest,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
 
         // Wait for the travely delay and pre-purge times
-        double start_wait_time=pre_purge_delay+trav_delay;
-        delay(start_wait_time);
+        //double startWaitTime=pre_purge_delay+trav_delay;
+        double startWaitTime = 15*1000;
+        delay(startWaitTime);
 
         // Travel the desired distance while welding
+        double dist = ui->weldDistanceEdit->text().toDouble();
+        ui->replyBox->addItem(tr("Weld distance= %1in").arg(dist));
         TravelADistance(dist);
+        //double actDist = ui->travCurrentPosEdit->text().toDouble();
+        while(travCurrPos < dist*0.95){
+            checkTravPos();
+            delay(250);
+            QApplication::processEvents();
+        }
 
         // Deactivate welding
         // Coil 263 controls the welding sequence stop
-        const auto weld_off_table = static_cast<QModbusDataUnit::RegisterType>(2);
-        QModbusDataUnit weld_off_request = QModbusDataUnit(weld_off_table,263,1);
-        weld_off_request.setValue(0,1);
+        const auto weldOffTable = static_cast<QModbusDataUnit::RegisterType>(2);
+        QModbusDataUnit weldOffRequest = QModbusDataUnit(weldOffTable,263,1);
+        weldOffRequest.setValue(0,1);
+        if(auto *reply = modbusDevice->sendWriteRequest(weldOffRequest,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
 
         // Wait for the post-purge and downsloap times
-        double end_wait_time=downsloap_delay+post_purge_delay;
-        delay(end_wait_time);
+        //double endWaitTime=downsloap_delay+post_purge_delay;
+        double endWaitTime = 20*1000;
+        delay(endWaitTime);
 
         // Finish by re-enabling the weld button
         ui->weldButton->setEnabled(true);
@@ -933,7 +1030,7 @@ void MainWindow::on_purgeButton_clicked()
 /* Waits for a specified amount of time in milliseconds */
 void MainWindow::delay(int time)
 {
-    QTime dieTime = QTime::currentTime().addSecs(time);
+    QTime dieTime = QTime::currentTime().addMSecs(time);
     while(QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
@@ -977,22 +1074,30 @@ void MainWindow::readData()
         QByteArray data = ezservo->readAll();
         int readSize = data.size()-3-4;
         QString selectData = QString::fromLatin1(data.mid(4,readSize));
+        //QString dataString = QString::fromLatin1(data.data());
         int posClicks = selectData.toInt();
         double posInches;
         if(lastEZServo == 1){
             posInches = (double) posClicks/travScaleFactor;
             ui->travCurrentPosEdit->setText(QString::number(posInches));
+            travCurrPos = posInches;
+            //return posInches;
         } else{
             posInches = (double) posClicks/oscScaleFactor;
             ui->oscCurrentPosEdit->setText(QString::number(posInches));
+            oscCurrPos = posInches;
+            //return posInches;
         }
+        //ui->replyBox->addItem(tr("pos of %1: %2in").arg(lastEZServo).arg(dataString));
 }
 
 void MainWindow::ezservoInit()
 {
     ui->replyBox->clear();
-    QByteArray servo1FwdVel = "/1V16777216R\r";
-    QByteArray servo1BwdVel = "/1U16777216R\r";
+    //QByteArray servo1FwdVel = "/1V8388608R\r"; // was 16777216
+    //QByteArray servo1BwdVel = "/1U8388608R\r"; // was 16777216
+    QByteArray servo1FwdVel = "/1V1622768R\r"; // -> 2.2 in/min
+    QByteArray servo1BwdVel = "/1U1622768R\r";
     QByteArray servo1Accel = "/1L65000R\r";
     QByteArray servo2FwdVel = "/2V16777216R\r";
     QByteArray servo2BwdVel = "/2U167772168R\r";
@@ -1000,18 +1105,18 @@ void MainWindow::ezservoInit()
 
     ui->replyBox->addItem(tr("Initializing EZServo1"));
     ezservo->write(servo1FwdVel);
-    delay(1);
+    delay(1000);
     ezservo->write(servo1BwdVel);
-    delay(1);
+    delay(1000);
     ezservo->write(servo1Accel);
-    delay(1);
+    delay(1000);
     ui->replyBox->addItem(tr("Initializing EZServo2"));
     ezservo->write(servo2FwdVel);
-    delay(1);
+    delay(1000);
     ezservo->write(servo2BwdVel);
-    delay(1);
+    delay(1000);
     ezservo->write(servo2Accel);
-    delay(1);
+    delay(1000);
     ui->replyBox->addItem(tr("EZServos Initialized"));
 }
 

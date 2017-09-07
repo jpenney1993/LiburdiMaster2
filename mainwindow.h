@@ -64,6 +64,7 @@ private slots:
     void on_travStopButton_clicked();
     void on_travZeroButton_clicked();
     void on_travCheckButton_clicked();
+    void checkTravPos();
     void on_oscOutButton_clicked();
     void on_oscInButton_clicked();
     void on_oscGoButton_clicked();

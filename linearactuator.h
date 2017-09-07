@@ -40,7 +40,7 @@ public:
     {
         int accuracy = 3; // lowest stable #: 2 oscillates some
         int velocity = 630;
-        int position = 100;
+        int position = 484;
     };
 
     actuatorCommands commands; // Instantiate it!
