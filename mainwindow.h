@@ -72,6 +72,8 @@ private slots:
     void on_oscZeroButton_clicked();
     void on_avcUpButton_clicked();
     void on_avcDownButton_clicked();
+    void jogAVCUp();
+    void jogAVCDown();
 
     // Welding button controls
     void on_purgeButton_clicked();
@@ -82,6 +84,8 @@ private slots:
     void on_oscCheckButton_clicked();
     void on_weldButton_clicked();
     void TravelADistance(double dist);
+    void oscillateADistance(double dist);
+    void weldADistance(double dist);
 
     // Firgelli button controls
     void on_connectLinActButton_clicked();
@@ -94,6 +98,10 @@ private slots:
     void on_wireRunUpButton_released();
 
     void on_wireRunDownButton_released();
+
+    void on_multiPassButton_clicked();
+
+    void on_proceedButton_clicked();
 
 private:
     Ui::MainWindow *ui;
