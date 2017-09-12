@@ -86,6 +86,7 @@ private slots:
     void TravelADistance(double dist);
     void oscillateADistance(double dist);
     void weldADistance(double dist);
+    void turnOnWeaving();
 
     // Firgelli button controls
     void on_connectLinActButton_clicked();
