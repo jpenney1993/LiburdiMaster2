@@ -110,6 +110,10 @@ private slots:
     void on_wireSteerLeftButton_clicked();
     int wireSteerDist2Click(double dist);
 
+    void on_weldModeButton_clicked();
+
+    void on_wireModeButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest;

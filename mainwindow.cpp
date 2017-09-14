@@ -1403,3 +1403,151 @@ void MainWindow::on_wireSteerLeftButton_clicked()
         statusBar()->showMessage(tr("ERROR: No EZServo"));
     }
 }
+
+void MainWindow::on_weldModeButton_clicked()
+{
+    // Read coil 258 for Test Mode
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil 258 controls the Test Mode
+    const auto table = static_cast<QModbusDataUnit::RegisterType>(2);
+    QModbusDataUnit request = QModbusDataUnit(table,258,1);
+
+    // If welding mode is OFF, turn it ON and green
+    if(ui->weldModeButton->text()=="Weld OFF")
+    {
+        ui->replyBox->clear();
+        ui->replyBox->addItem("Turning welding ON");
+        ui->weldModeButton->setText("Weld ON");
+        ui->weldModeButton->setStyleSheet("background-color:green");
+
+        request.setValue(0,1);
+        if(auto *reply = modbusDevice->sendWriteRequest(request,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
+    }
+
+    // Else turn OFF weld mode and make red
+    else if(ui->weldModeButton->text()=="Weld ON"){
+        ui->replyBox->clear();
+        ui->replyBox->addItem("Turning welding OFF");
+        ui->weldModeButton->setText("Weld OFF");
+        ui->weldModeButton->setStyleSheet("background-color:red");
+
+        request.setValue(0,0);
+        if(auto *reply = modbusDevice->sendWriteRequest(request,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
+    }
+}
+
+void MainWindow::on_wireModeButton_clicked()
+{
+    // Read coil 260 for Wire Enable
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil 260 controls the wire mode
+    const auto table = static_cast<QModbusDataUnit::RegisterType>(2);
+    QModbusDataUnit request = QModbusDataUnit(table,260,1);
+
+    // If wire mode is OFF, turn it ON and green
+    if(ui->wireModeButton->text()=="Wire OFF")
+    {
+        ui->replyBox->clear();
+        ui->replyBox->addItem("Turning wire ON");
+        ui->wireModeButton->setText("Wire ON");
+        ui->wireModeButton->setStyleSheet("background-color:green");
+
+        request.setValue(0,1);
+        if(auto *reply = modbusDevice->sendWriteRequest(request,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
+    }
+
+    // Else turn OFF weld mode and make red
+    else if(ui->wireModeButton->text()=="Wire ON"){
+        ui->replyBox->clear();
+        ui->replyBox->addItem("Turning wire OFF");
+        ui->wireModeButton->setText("Wire OFF");
+        ui->wireModeButton->setStyleSheet("background-color:red");
+
+        request.setValue(0,0);
+        if(auto *reply = modbusDevice->sendWriteRequest(request,0)){
+            if(!reply->isFinished()){
+                connect(reply,&QModbusReply::finished,this,[this,reply](){
+                   if(reply->error() == QModbusDevice::ProtocolError){
+                       statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                                arg(reply->errorString()).
+                                                arg(reply->rawResult().exceptionCode(),-1,16),5000);
+                   }else if(reply->error() != QModbusDevice::NoError){
+                       statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                                arg(reply->errorString()).
+                                                arg(reply->error(),-1,16),5000);
+                   }
+                   reply->deleteLater();
+                });
+            } else{
+                reply->deleteLater();
+            }
+        } else{
+            statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+        }
+    }
+}
