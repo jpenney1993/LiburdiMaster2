@@ -1551,3 +1551,154 @@ void MainWindow::on_wireModeButton_clicked()
         }
     }
 }
+
+//$$$$$$$$$$$$$$$$$$$$$$$ PENDANT BUTTON FUNCTIONS $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+void MainWindow::on_enterButton_clicked()
+{
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil 286 controls the enter button on the P300 face
+    const auto enterTable = static_cast<QModbusDataUnit::RegisterType>(2);
+    QModbusDataUnit enterRequest = QModbusDataUnit(enterTable,286,1);
+    enterRequest.setValue(0,1);
+    if(auto *reply = modbusDevice->sendWriteRequest(enterRequest,0)){
+        if(!reply->isFinished()){
+            connect(reply,&QModbusReply::finished,this,[this,reply](){
+               if(reply->error() == QModbusDevice::ProtocolError){
+                   statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                            arg(reply->errorString()).
+                                            arg(reply->rawResult().exceptionCode(),-1,16),5000);
+               }else if(reply->error() != QModbusDevice::NoError){
+                   statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                            arg(reply->errorString()).
+                                            arg(reply->error(),-1,16),5000);
+               }
+               reply->deleteLater();
+            });
+        } else{
+            reply->deleteLater();
+        }
+    } else{
+        statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+    }
+}
+
+//void MainWindow::genericReadWriteFunction()
+//{
+//    // This is a generic function for sending commands to the Liburdi
+//    if(!modbusDevice)
+//        return;
+//    ui->replyBox->clear();
+//    statusBar()->clearMessage();
+
+//    // Coil ### controls a thing
+//    const auto thingTable = static_cast<QModbusDataUnit::RegisterType>(?);    //2 for Digitial Output and 4 for Digital Output Register
+//    QModbusDataUnit thingRequest = QModbusDataUnit(thingTable,###,1);
+//    thingRequest.setValue(0,1);
+//    if(auto *reply = modbusDevice->sendWriteRequest(thingRequest,0)){
+//        if(!reply->isFinished()){
+//            connect(reply,&QModbusReply::finished,this,[this,reply](){
+//               if(reply->error() == QModbusDevice::ProtocolError){
+//                   statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+//                                            arg(reply->errorString()).
+//                                            arg(reply->rawResult().exceptionCode(),-1,16),5000);
+//               }else if(reply->error() != QModbusDevice::NoError){
+//                   statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+//                                            arg(reply->errorString()).
+//                                            arg(reply->error(),-1,16),5000);
+//               }
+//               reply->deleteLater();
+//            });
+//        } else{
+//            reply->deleteLater();
+//        }
+//    } else{
+//        statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+//    }
+//}
+
+
+void MainWindow::on_clearButton_clicked()
+{
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil 285 controls the clear button
+    const auto clearTable = static_cast<QModbusDataUnit::RegisterType>(2);    //2 for Digitial Output and 4 for Digital Output Register
+    QModbusDataUnit clearRequest = QModbusDataUnit(clearTable,285,1);
+    clearRequest.setValue(0,1);
+    if(auto *reply = modbusDevice->sendWriteRequest(clearRequest,0)){
+        if(!reply->isFinished()){
+            connect(reply,&QModbusReply::finished,this,[this,reply](){
+               if(reply->error() == QModbusDevice::ProtocolError){
+                   statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                            arg(reply->errorString()).
+                                            arg(reply->rawResult().exceptionCode(),-1,16),5000);
+               }else if(reply->error() != QModbusDevice::NoError){
+                   statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                            arg(reply->errorString()).
+                                            arg(reply->error(),-1,16),5000);
+               }
+               reply->deleteLater();
+            });
+        } else{
+            reply->deleteLater();
+        }
+    } else{
+        statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+    }
+}
+
+void MainWindow::on_weldStopButton_clicked()
+{
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil 263 controls the stop button
+    const auto stopTable = static_cast<QModbusDataUnit::RegisterType>(2);    //2 for Digitial Output and 4 for Digital Output Register
+    QModbusDataUnit stopRequest = QModbusDataUnit(stopTable,263,1);
+    stopRequest.setValue(0,1);
+    if(auto *reply = modbusDevice->sendWriteRequest(stopRequest,0)){
+        if(!reply->isFinished()){
+            connect(reply,&QModbusReply::finished,this,[this,reply](){
+               if(reply->error() == QModbusDevice::ProtocolError){
+                   statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                            arg(reply->errorString()).
+                                            arg(reply->rawResult().exceptionCode(),-1,16),5000);
+               }else if(reply->error() != QModbusDevice::NoError){
+                   statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                            arg(reply->errorString()).
+                                            arg(reply->error(),-1,16),5000);
+               }
+               reply->deleteLater();
+            });
+        } else{
+            reply->deleteLater();
+        }
+    } else{
+        statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+    }
+}
+
+void MainWindow::on_eStopButton_clicked()
+{
+    on_weldStopButton_clicked();
+    on_weldStopButton_clicked();
+    on_oscStopButton_clicked();
+    on_travStopButton_clicked();
+    if(ui->weldModeButton->text()=="Weld ON")
+    {
+        on_weldModeButton_clicked();
+    }
+    if(ui->wireModeButton->text()=="Wire ON")
+    {
+        on_wireModeButton_clicked();
+    }
+}
