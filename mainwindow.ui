@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>995</width>
+    <width>1092</width>
     <height>497</height>
    </rect>
   </property>
@@ -952,7 +952,7 @@ border-color: rgb(0, 0, 0);</string>
      <rect>
       <x>590</x>
       <y>10</y>
-      <width>371</width>
+      <width>491</width>
       <height>141</height>
      </rect>
     </property>
@@ -960,36 +960,10 @@ border-color: rgb(0, 0, 0);</string>
      <string>Welding Controls</string>
     </property>
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="4" column="1">
-      <widget class="QLabel" name="inDwellLabel">
-       <property name="text">
-        <string>In Dwell</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QLineEdit" name="outDwellEdit"/>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLineEdit" name="weldDistanceEdit"/>
-     </item>
      <item row="5" column="1">
-      <widget class="QLineEdit" name="inDwellEdit"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QCheckBox" name="weaveSelectBox">
+      <widget class="QPushButton" name="weaveButton">
        <property name="text">
-        <string>Weave</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="weldDistLabel">
-       <property name="text">
-        <string>Length [in]</string>
+        <string>Weaving</string>
        </property>
       </widget>
      </item>
@@ -1016,6 +990,16 @@ border-color: rgb(0, 0, 0);</string>
        </property>
       </widget>
      </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="weldDistLabel">
+       <property name="text">
+        <string>Distance [in]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="weldDistanceEdit"/>
+     </item>
      <item row="3" column="1">
       <widget class="QPushButton" name="proceedButton">
        <property name="text">
@@ -1030,41 +1014,45 @@ border-color: rgb(0, 0, 0);</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
-      <widget class="QLabel" name="outDwellLabel">
-       <property name="text">
-        <string>Out Dwell</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="3">
-      <widget class="QLabel" name="oscWidthLabel">
+      <widget class="QLineEdit" name="weldSpeedEdit"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Width</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <string>Weld Speed</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="3">
-      <widget class="QLabel" name="excursionLabel">
+     <item row="1" column="4">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Excursion</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <string>in/min</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="3">
-      <widget class="QLineEdit" name="excursionEdit"/>
+     <item row="3" column="2">
+      <widget class="QPushButton" name="weldModeButton">
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Weld OFF</string>
+       </property>
+      </widget>
      </item>
-     <item row="3" column="3">
-      <widget class="QLineEdit" name="oscWidthEdit"/>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="wireModeButton">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Wire OFF</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -1195,9 +1183,9 @@ border-color: rgb(0, 0, 0);</string>
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>150</y>
-      <width>371</width>
-      <height>241</height>
+      <y>160</y>
+      <width>361</width>
+      <height>231</height>
      </rect>
     </property>
     <property name="title">
@@ -1414,6 +1402,45 @@ border-color: rgb(0, 0, 0);</string>
       <string>Up</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="wireSteerRightButton">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>30</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wire Right</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="wireSteerLeftButton">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>70</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wire Left</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="resetButton">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>400</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>RESET</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -1421,7 +1448,7 @@ border-color: rgb(0, 0, 0);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>995</width>
+     <width>1092</width>
      <height>22</height>
     </rect>
    </property>

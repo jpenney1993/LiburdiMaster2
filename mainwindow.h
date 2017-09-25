@@ -65,6 +65,8 @@ private slots:
     void on_travZeroButton_clicked();
     void on_travCheckButton_clicked();
     void checkTravPos();
+    int calcTravSpeed(double desSpeed);
+    int calcOscSpeed(double desSpeed);
     void on_oscOutButton_clicked();
     void on_oscInButton_clicked();
     void on_oscGoButton_clicked();
@@ -83,7 +85,7 @@ private slots:
     void on_setCalibration2Button_clicked();
     void on_oscCheckButton_clicked();
     void on_weldButton_clicked();
-    void TravelADistance(double dist);
+    void TravelADistance(double dist, QString mode);
     void oscillateADistance(double dist);
     void weldADistance(double dist);
     void turnOnWeaving();
@@ -95,14 +97,22 @@ private slots:
     void on_wireStepVel_editingFinished();
     void on_wireRunUpButton_pressed();
     void on_wireRunDownButton_pressed();
-
     void on_wireRunUpButton_released();
-
     void on_wireRunDownButton_released();
-
     void on_multiPassButton_clicked();
-
     void on_proceedButton_clicked();
+
+    void on_weaveButton_clicked();
+
+    void on_resetButton_clicked();
+
+    void on_wireSteerRightButton_clicked();
+    void on_wireSteerLeftButton_clicked();
+    int wireSteerDist2Click(double dist);
+
+    void on_weldModeButton_clicked();
+
+    void on_wireModeButton_clicked();
 
 private:
     Ui::MainWindow *ui;
