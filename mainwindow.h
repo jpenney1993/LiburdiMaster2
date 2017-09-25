@@ -114,6 +114,14 @@ private slots:
 
     void on_wireModeButton_clicked();
 
+    void on_enterButton_clicked();
+
+    void on_clearButton_clicked();
+
+    void on_weldStopButton_clicked();
+
+    void on_eStopButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest;

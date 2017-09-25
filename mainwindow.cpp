@@ -948,6 +948,9 @@ void MainWindow::weldADistance(double dist)
         statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
     }
 
+    // Clear the error associate with the lacking oscillation motor
+    on_enterButton_clicked();
+
     // Wait for the travely delay and pre-purge times and wire-delay time
     //double startWaitTime=pre_purge_delay+trav_delay+wireDelay;
     double startWaitTime = 15*1000;
