@@ -1623,6 +1623,106 @@ void MainWindow::on_enterButton_clicked()
 //    }
 //}
 
+void MainWindow::generalLiburdiWrite(int address, int kind)
+{
+    // This is a generic function for sending commands to the Liburdi
+    if(!modbusDevice)
+        return;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Coil address controls a thing
+    const auto thingTable = static_cast<QModbusDataUnit::RegisterType>(kind);    //2 for Digitial Output and 4 for Digital Output Register
+    QModbusDataUnit thingRequest = QModbusDataUnit(thingTable,address,1);
+    thingRequest.setValue(0,1);
+    if(auto *reply = modbusDevice->sendWriteRequest(thingRequest,0))
+    {
+        if(!reply->isFinished())
+        {
+            connect(reply,&QModbusReply::finished,this,[this,reply]()
+            {
+               if(reply->error() == QModbusDevice::ProtocolError)
+               {
+                   statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2)").
+                                            arg(reply->errorString()).
+                                            arg(reply->rawResult().exceptionCode(),-1,16),5000);
+               }
+               else if(reply->error() != QModbusDevice::NoError)
+               {
+                   statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2").
+                                            arg(reply->errorString()).
+                                            arg(reply->error(),-1,16),5000);
+               }
+               reply->deleteLater();
+            });
+        }
+        else
+        {
+            reply->deleteLater();
+        }
+    }
+    else
+    {
+        statusBar()->showMessage(tr("Write error: ")+modbusDevice->errorString(),5000);
+    }
+}
+
+double MainWindow::generalLiburdiRead(int address, int kind)
+{
+    // This is a generic function for reading values from the Liburdi
+    if(!modbusDevice)
+        return 0.0;
+    ui->replyBox->clear();
+    statusBar()->clearMessage();
+
+    // Register address controls a thing
+    const auto thingTable = static_cast<QModbusDataUnit::RegisterType>(kind);   //2 for Digitial Output and 4 for Digital Output Register
+    QModbusDataUnit thingRequest = QModbusDataUnit(thingTable,address,2);
+    double result;
+    if(auto *reply = modbusDevice->sendReadRequest(thingRequest,0))
+    {
+        if(!reply->isFinished())
+        {
+            connect(reply,&QModbusReply::finished,this,[this,reply]()
+            {
+                if(reply->error() == QModbusDevice::ProtocolError)
+                {
+                    statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2").
+                                             arg(reply->errorString()).
+                                             arg(reply->error(),-1,16),5000);
+                }
+                else if(reply->error() != QModbusDevice::NoError)
+                {
+                    statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2)").
+                                             arg(reply->errorString()).
+                                             arg(reply->error(),-1,16),5000);
+                }
+                else
+                {
+                    auto thingReply = reply->result();
+                    int length = thingReply.valueCount();
+                    int output=thingReply.value(1);
+                    result=convert32Bit(output);
+                    ui->replyBox->addItem(tr("Parameter= %1s").arg(output));
+                }
+            });
+        }
+    }
+    return result;
+}
+
+double MainWindow::convert32Bit(int output)
+{
+    int V0=16256;
+    double D=output-V0;
+    double C=floor(D/128.0);
+    double G=128.0/(pow(2.0,C));
+    double Vr=V0+128*C;
+    double t=(output-Vr)/G+pow(2.0,C);
+
+    return t;
+}
+
 
 void MainWindow::on_clearButton_clicked()
 {

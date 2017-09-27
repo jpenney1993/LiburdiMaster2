@@ -122,6 +122,10 @@ private slots:
 
     void on_eStopButton_clicked();
 
+    void generalLiburdiWrite(int address, int kind);
+    double generalLiburdiRead(int address, int kind);
+    double convert32Bit(int output);
+
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest;
