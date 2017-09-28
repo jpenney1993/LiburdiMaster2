@@ -1822,3 +1822,10 @@ void MainWindow::on_generalReadButton_clicked()
         ui->replyBox->addItem(tr("Parameter= %1s").arg(value));
     }
 }
+
+void MainWindow::on_generalWriteButton_clicked()
+{
+    int address=ui->readAddressEdit->text().toInt();
+    int type=ui->readTypeEdit->text().toInt();
+    generalLiburdiWrite(address,type);
+}

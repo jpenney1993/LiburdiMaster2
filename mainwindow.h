@@ -128,6 +128,8 @@ private slots:
 
     void on_generalReadButton_clicked();
 
+    void on_generalWriteButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QModbusReply *lastRequest;

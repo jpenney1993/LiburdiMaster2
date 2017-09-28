@@ -1485,9 +1485,9 @@ border-color: rgb(0, 0, 0);</string>
     <property name="geometry">
      <rect>
       <x>970</x>
-      <y>310</y>
-      <width>89</width>
-      <height>25</height>
+      <y>304</y>
+      <width>51</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -1518,6 +1518,19 @@ border-color: rgb(0, 0, 0);</string>
     </property>
     <property name="text">
      <string>Type</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="generalWriteButton">
+    <property name="geometry">
+     <rect>
+      <x>1030</x>
+      <y>300</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Write</string>
     </property>
    </widget>
   </widget>
