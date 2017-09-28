@@ -1667,48 +1667,48 @@ void MainWindow::generalLiburdiWrite(int address, int kind)
     }
 }
 
-double MainWindow::generalLiburdiRead(int address, int kind)
+void MainWindow::generalLiburdiRead(int address, int kind, std::string convert)
 {
     // This is a generic function for reading values from the Liburdi
     if(!modbusDevice)
-        return 0.0;
+        return;
     ui->replyBox->clear();
     statusBar()->clearMessage();
 
     // Register address controls a thing
     const auto thingTable = static_cast<QModbusDataUnit::RegisterType>(kind);   //2 for Digitial Output and 4 for Digital Output Register
     QModbusDataUnit thingRequest = QModbusDataUnit(thingTable,address,2);
-    double result;
     if(auto *reply = modbusDevice->sendReadRequest(thingRequest,0))
     {
         if(!reply->isFinished())
         {
-            connect(reply,&QModbusReply::finished,this,[this,reply]()
+            connect(reply,&QModbusReply::finished,this,[this,reply,&convert]()
             {
                 if(reply->error() == QModbusDevice::ProtocolError)
                 {
+                    convert = "NA";
                     statusBar()->showMessage(tr("Write response error: %1 (Modbus exception: 0x%2").
                                              arg(reply->errorString()).
                                              arg(reply->error(),-1,16),5000);
                 }
                 else if(reply->error() != QModbusDevice::NoError)
                 {
+                    convert = "NA";
                     statusBar()->showMessage(tr("Write response error: %1 (code: 0x%2)").
                                              arg(reply->errorString()).
                                              arg(reply->error(),-1,16),5000);
                 }
                 else
                 {
-                    auto thingReply = reply->result();
+                    QModbusDataUnit thingReply = reply->result();
                     int length = thingReply.valueCount();
                     int output=thingReply.value(1);
-                    result=convert32Bit(output);
-                    ui->replyBox->addItem(tr("Parameter= %1s").arg(output));
+                    convert=std::to_string(convert32Bit(output));
+                    ui->replyBox->addItem(tr("Parameter= %1s").arg(thingReply.value(length-1)));
                 }
             });
         }
     }
-    return result;
 }
 
 double MainWindow::convert32Bit(int output)
@@ -1803,5 +1803,22 @@ void MainWindow::on_eStopButton_clicked()
     if(ui->wireModeButton->text()=="Wire ON")
     {
         on_wireModeButton_clicked();
+    }
+}
+
+void MainWindow::on_generalReadButton_clicked()
+{
+    int address=ui->readAddressEdit->text().toInt();
+    int type=ui->readTypeEdit->text().toInt();
+    std::string output;
+    generalLiburdiRead(address,type,output);
+    if(output=="NA")
+    {
+        ui->replyBox->addItem(tr("Error in reading. Read command returned 'NA'."));
+    }
+    else
+    {
+        double value=std::stod(output);
+        ui->replyBox->addItem(tr("Parameter= %1s").arg(value));
     }
 }

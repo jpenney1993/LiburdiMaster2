@@ -1481,6 +1481,45 @@ border-color: rgb(0, 0, 0);</string>
      <string>Enter</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="generalReadButton">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>310</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Read </string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="readAddressEdit">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>340</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Address</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="readTypeEdit">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>370</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Type</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

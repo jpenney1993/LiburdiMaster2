@@ -123,8 +123,10 @@ private slots:
     void on_eStopButton_clicked();
 
     void generalLiburdiWrite(int address, int kind);
-    double generalLiburdiRead(int address, int kind);
+    void generalLiburdiRead(int address, int kind, std::string convert);
     double convert32Bit(int output);
+
+    void on_generalReadButton_clicked();
 
 private:
     Ui::MainWindow *ui;
