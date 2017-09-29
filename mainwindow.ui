@@ -869,6 +869,9 @@ border-color: rgb(0, 0, 0);</string>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="2">
       <widget class="QCheckBox" name="liburdiActiveCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Active?</string>
        </property>
@@ -902,6 +905,9 @@ border-color: rgb(0, 0, 0);</string>
      </item>
      <item row="1" column="2">
       <widget class="QCheckBox" name="ezservoActiveCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Active?</string>
        </property>
@@ -940,6 +946,9 @@ border-color: rgb(0, 0, 0);</string>
      </item>
      <item row="2" column="2">
       <widget class="QCheckBox" name="linActActiveCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Active?</string>
        </property>
