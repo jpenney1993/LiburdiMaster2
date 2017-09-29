@@ -202,6 +202,7 @@ void MainWindow::openEzservoPort()
         ui->oscStopButton->setDisabled(false);
         ui->oscCheckButton->setDisabled(false);
         ui->oscZeroButton->setDisabled(false);
+        ui->weaveButton->setDisabled(false);
     } else{
         QMessageBox::critical(this,tr("Error"),ezservo->errorString());
         statusBar()->showMessage(tr("EZServo Open Error"));
