@@ -1083,10 +1083,10 @@ void MainWindow::turnOnWeaving()
     double oscWidth=ui->oscWidthEdit->text().toDouble();
     double excursion=ui->excursionEdit->text().toDouble();
     */
-    double inDwell = 0.1;
-    double outDwell = 0.1;
-    double oscWidth = 0.17;
-    double excursion = 0.1;
+    double inDwell = 0.6;
+    double outDwell = 0.6;
+    double oscWidth = 0.64;
+    double excursion = 0.6;
     double dist=ui->weldDistanceEdit->text().toDouble();
 
     double downSlopeTime=10;
@@ -1623,7 +1623,7 @@ void MainWindow::on_enterButton_clicked()
 //    }
 //}
 
-void MainWindow::generalLiburdiWrite(int address, int kind)
+void MainWindow::generalLiburdiWrite(int address, int kind, int input)
 {
     // This is a generic function for sending commands to the Liburdi
     if(!modbusDevice)
@@ -1634,7 +1634,7 @@ void MainWindow::generalLiburdiWrite(int address, int kind)
     // Coil address controls a thing
     const auto thingTable = static_cast<QModbusDataUnit::RegisterType>(kind);    //2 for Digitial Output and 4 for Digital Output Register
     QModbusDataUnit thingRequest = QModbusDataUnit(thingTable,address,1);
-    thingRequest.setValue(0,1);
+    thingRequest.setValue(0,input);
     if(auto *reply = modbusDevice->sendWriteRequest(thingRequest,0))
     {
         if(!reply->isFinished())
@@ -1732,7 +1732,7 @@ void MainWindow::on_clearButton_clicked()
     statusBar()->clearMessage();
 
     // Coil 285 controls the clear button
-    const auto clearTable = static_cast<QModbusDataUnit::RegisterType>(2);    //2 for Digitial Output and 4 for Digital Output Register
+    const auto clearTable = static_cast<QModbusDataUnit::RegisterType>(2);    //2 for Digitial Output and 4 for Output Register
     QModbusDataUnit clearRequest = QModbusDataUnit(clearTable,285,1);
     clearRequest.setValue(0,1);
     if(auto *reply = modbusDevice->sendWriteRequest(clearRequest,0)){
@@ -1765,7 +1765,7 @@ void MainWindow::on_weldStopButton_clicked()
     statusBar()->clearMessage();
 
     // Coil 263 controls the stop button
-    const auto stopTable = static_cast<QModbusDataUnit::RegisterType>(2);    //2 for Digitial Output and 4 for Digital Output Register
+    const auto stopTable = static_cast<QModbusDataUnit::RegisterType>(2);    //2 for Digitial Output and 4 for Output Register
     QModbusDataUnit stopRequest = QModbusDataUnit(stopTable,263,1);
     stopRequest.setValue(0,1);
     if(auto *reply = modbusDevice->sendWriteRequest(stopRequest,0)){
@@ -1825,7 +1825,13 @@ void MainWindow::on_generalReadButton_clicked()
 
 void MainWindow::on_generalWriteButton_clicked()
 {
+    int input=ui->writeValueEdit->text().toInt();
     int address=ui->readAddressEdit->text().toInt();
     int type=ui->readTypeEdit->text().toInt();
-    generalLiburdiWrite(address,type);
+    generalLiburdiWrite(address,type,input);
+}
+
+void MainWindow::on_teachModeButton_clicked()
+{
+    generalLiburdiWrite(1024,4,2001);
 }

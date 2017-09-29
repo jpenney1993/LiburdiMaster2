@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1092</width>
-    <height>497</height>
+    <width>1125</width>
+    <height>519</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1054,6 +1054,13 @@ border-color: rgb(0, 0, 0);</string>
        </property>
       </widget>
      </item>
+     <item row="3" column="3">
+      <widget class="QPushButton" name="weldStopButton">
+       <property name="text">
+        <string>Weld Stop</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QPushButton" name="eStopButton">
@@ -1442,95 +1449,121 @@ border-color: rgb(0, 0, 0);</string>
      <string>RESET</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="clearButton">
+   <widget class="QGroupBox" name="readWriteBox">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>230</y>
-      <width>89</width>
-      <height>25</height>
+      <x>960</x>
+      <y>160</y>
+      <width>141</width>
+      <height>231</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Clear</string>
+    <property name="title">
+     <string>Read/Write</string>
     </property>
+    <widget class="QPushButton" name="enterButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Enter</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="clearButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Clear</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="generalReadButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>51</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Read </string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="generalWriteButton">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>90</y>
+       <width>51</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Write</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="readAddressEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>113</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Address</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="readTypeEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>113</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Type</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="writeValueEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>113</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Value</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="weldStopButton">
+   <widget class="QPushButton" name="teachModeButton">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>270</y>
-      <width>89</width>
-      <height>25</height>
+      <x>990</x>
+      <y>400</y>
+      <width>101</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Weld Stop</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="enterButton">
-    <property name="geometry">
-     <rect>
-      <x>970</x>
-      <y>190</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Enter</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="generalReadButton">
-    <property name="geometry">
-     <rect>
-      <x>970</x>
-      <y>304</y>
-      <width>51</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Read </string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="readAddressEdit">
-    <property name="geometry">
-     <rect>
-      <x>970</x>
-      <y>340</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Address</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="readTypeEdit">
-    <property name="geometry">
-     <rect>
-      <x>970</x>
-      <y>370</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Type</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="generalWriteButton">
-    <property name="geometry">
-     <rect>
-      <x>1030</x>
-      <y>300</y>
-      <width>51</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Write</string>
+     <string>Teach Mode</string>
     </property>
    </widget>
   </widget>
@@ -1539,7 +1572,7 @@ border-color: rgb(0, 0, 0);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1092</width>
+     <width>1125</width>
      <height>22</height>
     </rect>
    </property>
